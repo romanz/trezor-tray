@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Small Qt tool for unlocking TREZOR device when plugged."""
+
 import logging
 import pathlib
 import sys
