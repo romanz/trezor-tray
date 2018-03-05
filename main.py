@@ -85,7 +85,7 @@ def main():
     icon_path = pathlib.Path(__file__).with_name('trezor.png')
     tray = SystemTrayIcon(QtGui.QIcon(str(icon_path)),
                           parent=window, app=app)
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 if __name__ == '__main__':
