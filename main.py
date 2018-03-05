@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 
 class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 
-    INTERVAL = 60 * 1000  # 60 seconds
+    INTERVAL = 4 * 60 * 1000  # [ms]
 
     def __init__(self, icon, parent, app):
         super().__init__(icon, parent)
