@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import logging
+import pathlib
 import sys
 
 from PyQt5 import QtWidgets, QtGui
@@ -79,7 +80,8 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
     window = QtWidgets.QWidget()
-    tray = SystemTrayIcon(QtGui.QIcon('trezor.png'),
+    icon_path = pathlib.Path(__file__).with_name('trezor.png')
+    tray = SystemTrayIcon(QtGui.QIcon(str(icon_path)),
                           parent=window, app=app)
     sys.exit(app.exec_())
 
