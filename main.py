@@ -21,14 +21,14 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
 
     INTERVAL = 4 * 60 * 1000  # [ms]
 
-    def __init__(self, icon, parent, app):
-        super().__init__(icon, parent)
+    def __init__(self, icons, parent, app):
+        super().__init__(icons[0], parent)
+        self.red_icon, self.green_icon = icons
         self.app = app
         menu = QtWidgets.QMenu(parent)
         menu.addAction("Exit").triggered.connect(self.on_exit)
         self.setContextMenu(menu)
         self.activated.connect(self.on_click)
-
         self.show()
 
         self.device = trezor.Trezor()
@@ -53,9 +53,11 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             with self.device:
                 log.info('unlocked')
                 self.setToolTip('Unlocked')
+                self.setIcon(self.green_icon)
         except Exception as e:
             log.exception('ping failed: %s', e)
             self.setToolTip('Failed to unlock: {}'.format(e))
+            self.setIcon(self.red_icon)
 
     def on_timer(self):
         self.ping()
@@ -69,12 +71,19 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
             self.ping()
 
     def on_device_event(self, d):
-        log.info('%s %s', d.action, d)
+        log.info('%s %s: %s', d.action, d, list(sorted(d.items())))
         if (d.get('HID_NAME') == 'SatoshiLabs TREZOR' and
-            d.get('HID_PHYS', '').endswith('/input0')):
+            d.get('HID_PHYS', '').endswith('/input1')):
             if d.action == 'add':
                 self.ping()
+            else:
+                self.setToolTip('Disconnected')
+                self.setIcon(self.red_icon)
 
+
+def _load_icon(name):
+    icon_path = pathlib.Path(__file__).with_name(name)
+    return QtGui.QIcon(str(icon_path))
 
 def main():
     util.setup_logging(verbosity=2)
@@ -82,8 +91,7 @@ def main():
     app = QtWidgets.QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)
     window = QtWidgets.QWidget()
-    icon_path = pathlib.Path(__file__).with_name('trezor.png')
-    tray = SystemTrayIcon(QtGui.QIcon(str(icon_path)),
+    tray = SystemTrayIcon([_load_icon(p) for p in ('red.png', 'green.png')],
                           parent=window, app=app)
     sys.exit(app.exec())
 
