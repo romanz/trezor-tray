@@ -11,8 +11,8 @@ from PyQt5.QtCore import QTimer
 from pyudev import Context, Monitor
 from pyudev.pyqt5 import MonitorObserver
 
+from libagent import device, util
 from libagent.device import trezor
-from libagent import util
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +31,8 @@ class SystemTrayIcon(QtWidgets.QSystemTrayIcon):
         self.activated.connect(self.on_click)
         self.show()
 
-        self.device = trezor.Trezor()
+        self.device = device.trezor.Trezor()
+        self.device.ui = device.ui.UI(device_type=self.device.__class__)
         self.ping()
 
         self._observe()
